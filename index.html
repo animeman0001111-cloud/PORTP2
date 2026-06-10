@@ -43,7 +43,7 @@
   .nav-logo em { font-style: italic; color: var(--rust); }
 
   .nav-links {
-    display:flex; gap:2.5rem; list-style:none;
+    display:none;
   }
   .nav-links a {
     font-size: 0.8rem; font-weight:500;
@@ -64,7 +64,7 @@
 
   /* HAMBURGER — 3 lines morph to X */
   .burger {
-    display:none; cursor:pointer;
+    display:block; cursor:pointer;
     background:none; border:none;
     width:36px; height:36px;
     position:relative; z-index:200;
@@ -265,8 +265,6 @@
     .hero-right { flex-direction:row; }
     .stat-box { flex:1; }
     .about { grid-template-columns:1fr; }
-    .nav-links { display:none; }
-    .burger { display:block; }
     nav { padding:0 1.5rem; }
     .modules, .about { padding-left:1.5rem; padding-right:1.5rem; }
     .hero { padding-left:1.5rem; padding-right:1.5rem; }
