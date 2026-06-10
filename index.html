@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Exploration – Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f7f3ee;
+    --warm: #efe8df;
+    --ink: #1a1208;
+    --rust: #c0442a;
+    --sage: #5a7a5e;
+    --sand: #b8a898;
+    --white: #fffdfb;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x:hidden;
+  }
+
+  /* NAV */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 3rem;
+    height: 68px;
+    background: var(--cream);
+    border-bottom: 1px solid var(--sand);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--ink);
+    letter-spacing:-0.01em;
+  }
+  .nav-logo em { font-style: italic; color: var(--rust); }
+
+  .nav-links {
+    display:flex; gap:2.5rem; list-style:none;
+  }
+  .nav-links a {
+    font-size: 0.8rem; font-weight:500;
+    color: var(--ink); text-decoration:none;
+    letter-spacing: 0.04em;
+    opacity: 0.6; transition: opacity 0.2s, color 0.2s;
+    position:relative;
+  }
+  .nav-links a::after {
+    content:'';
+    position:absolute; bottom:-4px; left:0; right:0;
+    height:1.5px; background: var(--rust);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.25s ease;
+  }
+  .nav-links a:hover { opacity:1; color: var(--rust); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  /* HAMBURGER — 3 lines morph to X */
+  .burger {
+    display:none; cursor:pointer;
+    background:none; border:none;
+    width:36px; height:36px;
+    position:relative; z-index:200;
+  }
+  .burger span {
+    position:absolute; left:4px; right:4px;
+    height:1.5px; background: var(--ink);
+    border-radius:2px;
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .burger span:nth-child(1) { top:10px; }
+  .burger span:nth-child(2) { top:17px; }
+  .burger span:nth-child(3) { top:24px; }
+  .burger.open span:nth-child(1) { top:17px; transform: rotate(45deg); }
+  .burger.open span:nth-child(2) { opacity:0; left:50%; right:50%; }
+  .burger.open span:nth-child(3) { top:17px; transform: rotate(-45deg); }
+
+  /* OVERLAY — FIX: use visibility+opacity instead of display:none so transition works */
+  .drawer-overlay {
+    position:fixed; inset:0; z-index:149;
+    background: rgba(26,18,8,0.35);
+    opacity:0;
+    visibility:hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  .drawer-overlay.show {
+    opacity:1;
+    visibility:visible;
+  }
+
+  /* SLIDE-IN SIDE DRAWER — FIX: changed from <nav> to <div> in HTML */
+  .drawer {
+    position:fixed; top:0; right:0; bottom:0; z-index:150;
+    width: min(320px, 85vw);
+    background: var(--white);
+    border-left: 1px solid var(--sand);
+    padding: 6rem 2.5rem 3rem;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    display:flex; flex-direction:column; gap:0;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer a {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; font-weight:700;
+    color: var(--ink); text-decoration:none;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--warm);
+    transition: color 0.2s, padding-left 0.2s;
+  }
+  .drawer a:last-of-type { border-bottom:none; }
+  .drawer a:hover { color: var(--rust); padding-left: 10px; }
+  .drawer-footer {
+    margin-top:auto;
+    font-size:0.75rem; color: var(--sand);
+    letter-spacing:0.05em;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display:grid; grid-template-columns: 1fr 1fr;
+    align-items:center;
+    padding: 6rem 3rem 3rem;
+    gap: 4rem;
+    max-width: 1100px; margin:0 auto;
+  }
+  .eyebrow {
+    font-size:0.72rem; font-weight:500; letter-spacing:0.18em;
+    text-transform:uppercase; color: var(--rust);
+    margin-bottom:1.5rem;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 5vw, 4.5rem);
+    font-weight: 700; line-height: 1.08;
+    color: var(--ink);
+    margin-bottom: 1.5rem;
+  }
+  h1 em { font-style:italic; font-weight:400; color: var(--rust); }
+  .hero-desc {
+    font-size:1rem; color: var(--ink); opacity:0.65;
+    line-height: 1.8; margin-bottom: 2.5rem;
+    max-width:420px;
+  }
+  .cta-row { display:flex; gap:1rem; flex-wrap:wrap; }
+  .btn-primary {
+    display:inline-block;
+    background: var(--rust); color: #fff;
+    padding: 0.8rem 1.8rem;
+    font-size:0.82rem; font-weight:500; letter-spacing:0.04em;
+    text-decoration:none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: #a33824; transform: translateY(-2px); }
+  .btn-ghost {
+    display:inline-block;
+    border: 1px solid var(--sand); color: var(--ink);
+    padding: 0.8rem 1.8rem;
+    font-size:0.82rem; letter-spacing:0.04em;
+    text-decoration:none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--ink); }
+
+  .hero-right {
+    display:flex; flex-direction:column; gap:1rem;
+  }
+  .stat-box {
+    background: var(--white);
+    border: 1px solid var(--sand);
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .stat-box:hover { border-color: var(--rust); }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem; font-weight:700; color: var(--rust);
+    line-height:1;
+  }
+  .stat-label {
+    font-size:0.8rem; color: var(--ink); opacity:0.55;
+    margin-top:0.4rem; letter-spacing:0.03em;
+  }
+
+  /* MODULES */
+  .modules {
+    background: var(--warm);
+    padding: 5rem 3rem;
+  }
+  .modules-inner { max-width: 1100px; margin:0 auto; }
+  .section-head {
+    display:flex; align-items:baseline; gap:1rem;
+    margin-bottom:3rem;
+    border-bottom: 1px solid var(--sand);
+    padding-bottom:1rem;
+  }
+  .section-head h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight:700;
+  }
+  .section-head span {
+    font-size:0.75rem; color: var(--rust);
+    letter-spacing:0.1em; text-transform:uppercase;
+  }
+  .module-list { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:1px; background: var(--sand); }
+  .module-item {
+    background: var(--white);
+    padding: 2rem 1.75rem;
+    transition: background 0.2s;
+    cursor:pointer;
+  }
+  .module-item:hover { background: var(--cream); }
+  .mod-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight:700; color: var(--warm);
+    -webkit-text-stroke: 1px var(--sand);
+    line-height:1; margin-bottom:1rem;
+  }
+  .module-item h3 { font-size:0.95rem; font-weight:500; margin-bottom:0.5rem; }
+  .module-item p { font-size:0.82rem; color: var(--ink); opacity:0.55; line-height:1.65; }
+
+  /* ABOUT */
+  .about {
+    max-width: 1100px; margin:0 auto;
+    padding: 5rem 3rem;
+    display:grid; grid-template-columns: 2fr 1fr; gap:4rem; align-items:center;
+  }
+  .about h2 {
+    font-family: 'Playfair Display', serif;
+    font-size:2.2rem; font-weight:700;
+    margin-bottom:1.25rem; line-height:1.2;
+  }
+  .about p {
+    font-size:0.95rem; color: var(--ink); opacity:0.65;
+    line-height:1.8; margin-bottom:1rem;
+  }
+  .quote-block {
+    background: var(--rust); color: #fff;
+    padding: 2rem;
+    font-family: 'Playfair Display', serif;
+    font-size:1.1rem; font-style:italic; line-height:1.6;
+  }
+  .quote-block cite {
+    display:block; font-style:normal;
+    font-size:0.75rem; font-family:'Inter',sans-serif;
+    opacity:0.75; margin-top:1rem; letter-spacing:0.05em;
+  }
+
+  footer {
+    background: var(--ink); color: var(--sand);
+    text-align:center; padding: 2rem 3rem;
+    font-size:0.78rem; letter-spacing:0.05em;
+  }
+
+  @media(max-width:860px){
+    .hero { grid-template-columns:1fr; padding-top:5rem; }
+    .hero-right { flex-direction:row; }
+    .stat-box { flex:1; }
+    .about { grid-template-columns:1fr; }
+    .nav-links { display:none; }
+    .burger { display:block; }
+    nav { padding:0 1.5rem; }
+    .modules, .about { padding-left:1.5rem; padding-right:1.5rem; }
+    .hero { padding-left:1.5rem; padding-right:1.5rem; }
+  }
+  @media(max-width:500px){
+    .hero-right { flex-direction:column; }
+    .cta-row { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Eng<em>ineering</em> Exploration</div>
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">Intro to Engineering</a></li>
+    <li><a href="#">Project Management</a></li>
+    <li><a href="#">Portfolio</a></li>
+  </ul>
+  <button class="burger" id="burger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- FIX 1: Changed from <nav> to <div> to avoid duplicate nav landmark conflict -->
+<div class="drawer-overlay" id="overlay"></div>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <a href="#">Home</a>
+  <a href="#">Intro to Engineering</a>
+  <a href="#">Project Management</a>
+  <a href="#">Portfolio</a>
+  <p class="drawer-footer">KLE Tech · Rachel · 2026</p>
+</div>
+
+<main>
+  <section class="hero">
+    <div class="hero-left">
+      <p class="eyebrow">KLE Tech University · 2026</p>
+      <h1>Engineering<br><em>Exploration</em></h1>
+      <p class="hero-desc">Introducing the fundamentals of engineering through hands-on learning, real-world problem solving, and analytical thinking across multiple disciplines.</p>
+      <div class="cta-row">
+        <a href="#" class="btn-primary">View Portfolio</a>
+        <a href="#" class="btn-ghost">Course Modules</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="stat-box">
+        <div class="stat-num">04</div>
+        <div class="stat-label">Core modules covered</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Engineering domains explored</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">01</div>
+        <div class="stat-label">Portfolio – Rachel</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modules">
+    <div class="modules-inner">
+      <div class="section-head">
+        <h2>Course Modules</h2>
+        <span>My Portfolio</span>
+      </div>
+      <div class="module-list">
+        <div class="module-item">
+          <div class="mod-num">01</div>
+          <h3>Introduction to Engineering</h3>
+          <p>Core principles and engineering domains, building a foundation for analytical thinking.</p>
+        </div>
+        <div class="module-item">
+          <div class="mod-num">02</div>
+          <h3>Project Management</h3>
+          <p>Structured workflows, planning, and delivery of engineering projects.</p>
+        </div>
+        <div class="module-item">
+          <div class="mod-num">03</div>
+          <h3>Systems & Design</h3>
+          <p>How components interact and how to approach design problems methodically.</p>
+        </div>
+        <div class="module-item">
+          <div class="mod-num">04</div>
+          <h3>Applied Practice</h3>
+          <p>Hands-on projects connecting theory with real engineering applications.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="about">
+    <div>
+      <h2>Building a Strong Foundation</h2>
+      <p>Engineering Exploration encourages students to explore different engineering domains and understand how systems work. The course connects theoretical concepts with practical experiences, developing both analytical and creative thinking.</p>
+      <p>By bridging the gap between classroom learning and real-world application, students leave with the tools to approach complex problems with confidence.</p>
+    </div>
+    <blockquote class="quote-block">
+      "Connecting theory with practice, one project at a time."
+      <cite>Engineering Exploration, KLE Tech</cite>
+    </blockquote>
+  </div>
+</main>
+
+<footer>© 2026 Engineering Exploration Portfolio · KLE Tech University</footer>
+
+<script>
+  const burger = document.getElementById('burger');
+  const drawer = document.getElementById('drawer');
+  const overlay = document.getElementById('overlay');
+
+  function openMenu() {
+    burger.classList.add('open');
+    drawer.classList.add('open');
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    burger.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeMenu() {
+    burger.classList.remove('open');
+    drawer.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+    burger.setAttribute('aria-expanded', 'false');
+  }
+
+  // FIX 2: Toggle correctly on burger click
+  burger.addEventListener('click', () => {
+    drawer.classList.contains('open') ? closeMenu() : openMenu();
+  });
+
+  // FIX 3: Overlay click closes drawer
+  overlay.addEventListener('click', closeMenu);
+
+  // FIX 4: Escape key closes drawer
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer.classList.contains('open')) closeMenu();
+  });
+
+  // Close on nav link click inside drawer
+  drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+
+  // Subtle entrance animation for stat boxes and module items
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => {
+          e.target.style.opacity = '1';
+          e.target.style.transform = 'translateY(0)';
+        }, i * 100);
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.module-item, .stat-box').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity 0.45s ease, transform 0.45s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
